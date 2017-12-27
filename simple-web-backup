@@ -1,0 +1,28 @@
+#!/bin/sh
+
+dst_dir=`date +%y_%m_%d_%H`
+
+
+cp /etc/crontab /backup/cron/cron.$dst_dir
+
+
+tar -czvf /backup/backup/www/$dst_dir.tar.gz /usr/local/www
+
+tar -czvf /backup/backup/log.$dst_dir.tar.gz /var/log/apache24
+
+/usr/local/bin/mysqldump mysql -uroot   | gzip -c > /backup/backup/bases/$dst_dir.mysql.gz
+/usr/local/bin/mysqldump mypin -uroot   | gzip -c > /backup/backup/bases/$dst_dir.mypin.gz
+/usr/local/bin/mysqldump pinvds -uroot  | gzip -c > /backup/backup/bases/$dst_dir.pinvds.gz
+/usr/local/bin/mysqldump test -uroot    | gzip -c > /backup/backup/bases/$dst_dir.test.gz
+/usr/local/bin/mysqldump forum -uroot   | gzip -c > /backup/backup/bases/$dst_dir.forum.gz
+/usr/local/bin/mysqldump proftpd -uroot | gzip -c > /backup/backup/bases/$dst_dir.proftpd.gz
+/usr/local/bin/mysqldump postfix -uroot | gzip -c > /backup/backup/bases/$dst_dir.postfix.gz
+/usr/local/bin/mysqldump sms -uroot -   | gzip -c > /backup/backup/bases/$dst_dir.sms.gz
+
+
+find /backup/backup/bases/ -mtime +1 -delete -type d
+find /backup/backup/www/ -mtime +2 -delete -type f
+find /backup/backup/cron/ -mtime +1 -delete -type f
+find /backup/backup/ -mtime +1 -delete -type f
+
+find /var/log/apache24/ -type f -exec sh -c ': > {}' \;
